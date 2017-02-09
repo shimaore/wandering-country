@@ -1,7 +1,7 @@
-    debug = (require 'debug') exports.name
+    debug = (require 'debug') 'wandering-country'
 
     seem = require 'seem'
-    sleep = require './sleep.coffee.md'
+    sleep = require './sleep'
 
 Generic load/create/update
 --------------------------
@@ -11,7 +11,7 @@ These define the base semantics for the entire suite.
 ### load
 
     load = seem (db,id) ->
-      debug event, {id}
+      debug 'load', {id}
       doc = yield db
         .get id
         .catch -> _id: id
@@ -19,31 +19,32 @@ These define the base semantics for the entire suite.
 ### create
 
     create = seem (db,doc) ->
-      debug "create", doc
+      debug 'create', doc
       {rev} = yield db
         .put doc
         .catch (error) ->
           debug "create: #{error} #{error.stack}"
           Promise.reject error
 
-      debug "create", {rev}
+      debug 'create OK', {rev}
       doc._rev = rev
       doc
 
 ### update
 
     update = seem (db,data,retry = 1) ->
+      debug 'update', data
       doc = yield db
         .get data._id
         .catch -> data
 
-      debug "get", doc
+      debug 'update: get', doc
       for k,v of data when k[0] isnt '_'
         doc[k] = v
 
       doc._deleted = data._deleted if data._deleted
 
-      debug "put", doc
+      debug 'update: put', doc
       {rev} = yield db
         .put doc
         .catch seem (error) ->
@@ -84,22 +85,23 @@ These rely either on the couchapp, or are standard database access.
 Coffee-script representation of a module which exports a function that rewrites an account into a canonical form.
 
       normalize_account: '''
-        exports = (account) ->
-          account
+        function(account) { return account }
       '''
 
 ### Load-via-query
 
       generic_load = (name) ->
-        seem ->
+        seem (key) ->
+          debug "generic_load #{name}", key
           {rows} = yield @db
             .query "#{app}/#{name}",
               reduce: false
               include_docs: true
               key: key
             .catch (error) ->
-              debug "generic_load #{name}: #{error} #{error.stack}"
+              debug "generic_load #{name} Failed: #{error} #{error.stack}"
               Promise.reject error
+          debug "generic_load #{name} OK", key, rows
           docs = rows.map (row) -> row.doc
 
       devices_for: generic_load 'devices'
@@ -108,7 +110,7 @@ Coffee-script representation of a module which exports a function that rewrites 
       local_numbers_for: generic_load 'local_numbers'
       number_domains_for: generic_load 'number_domains'
 
-      load_device_for_account: (account) -> @devices_for ['account',account]
+      load_devices_for_account: (account) -> @devices_for ['account',account]
       load_endpoints_for_account: (account) -> @endpoints_for ['account',account]
       load_global_numbers_for_account: (account) -> @global_numbers_for ['account',account]
       load_global_numbers_for_local_number: (local_number) -> @global_numbers_for ['local_number',local_number]
@@ -162,7 +164,7 @@ Coffee-script representation of a module which exports a function that rewrites 
 Load the number-domain
 
         debug 'load_domain', name
-        number_domain = yield db
+        number_domain = yield @db
           .get "number_domain:#{name}"
           .catch -> null
 
@@ -176,7 +178,7 @@ Load the number-domain
 
 Load the associated DNS domain
 
-        domain = yield db
+        domain = yield @db
           .get "domain:#{name}"
           .catch -> null
 
@@ -186,7 +188,7 @@ Load the associated DNS domain
 
 Load the numbers in the domain (including the disabled ones)
 
-        {rows} = yield db
+        {rows} = yield @db
           .query "#{app}/numbers_by_domain",
             reduce: false
             include_docs: true
@@ -202,7 +204,7 @@ Load the numbers in the domain (including the disabled ones)
 
 Load the endpoints in the domain (including the disabled ones)
 
-        {rows} = yield db
+        {rows} = yield @db
           .query "#{app}/endpoints_by_domain",
             reduce: false
             include_docs: true
@@ -227,7 +229,7 @@ Send the result
       load_number_domains: seem ->
         debug 'load_number_domains'
 
-        {rows} = yield db
+        {rows} = yield @db
           .allDocs
             startkey: 'number_domain:'
             endkey: 'number_domain:\uffff'
@@ -244,7 +246,9 @@ Send the result
 ### Install the Couch App on the server
 
       push_couchapp: ->
-        @update couchapp(@normalize_account)
+        doc = couchapp {@normalize_account}
+        debug 'couchapp', doc
+        @update doc
         .catch -> false
 
 ### Build generic load/update/remove for various types
@@ -289,7 +293,7 @@ Send the result
             return Promise.reject new Error "update_prov_audio_blob invalid_type #{file.type}"
 
         doc = yield @db.get id
-        a = {rev} = yield db
+        a = {rev} = yield @db
           .putAttachment doc._id, base, doc._rev, file, file.type
           .catch (error) ->
             debug "update_prov_audio_blob #{error} #{error.stack}"
@@ -334,8 +338,8 @@ Parameters: `user_db` converts a user database name into a PouchDB object.
 
     class WanderingCountryWithUserDatabase extends WanderingCountryWithCCNQ
 
-      constructor: (db,normalize_account,@user_db) ->
-        super db, normalize_account
+      constructor: (db,@user_db) ->
+        super db
 
 ### Load/update a user database's voicemail-settings
 
@@ -411,13 +415,13 @@ Wrap with events
           since: 'now'
           include_docs: true
 
-        changes.on 'change', (change) ->
+        changes.on 'change', (change) =>
           debug 'monitor: change', change
           @ev.trigger 'change', change.doc
 
-        changes.on 'error', (error) ->
+        changes.on 'error', (error) =>
           debug "monitor: error", this_db.name, error
-          setTimeout (-> start_monitoring this_db), 10*1000
+          setTimeout (=> @start_monitoring this_db), 10*1000
           return
 
         changes
@@ -434,10 +438,8 @@ Wrap with events
 
         return
 
-      constructor: (db,normalize_account,user_db,@ev) ->
-        super db, normalize_account, user_db
-
-        @install_handlers()
+      constructor: (db,user_db,@ev) ->
+        super db, user_db
 
         @monitor = {}
 
@@ -458,21 +460,22 @@ Wrap with events
 ### Events
 
       trigger: (event,data) ->
-        @ev?.trigger event, data
+        @ev.trigger event, data
 
       on: (event,handler) ->
-        @ev?.on event, handler
+        @ev.on event, handler
 
       one: (event,handler) ->
-        @ev?.one event, handler
+        @ev.one event, handler
 
       _wrap_on: (event,fun) ->
         handler = (args...) =>
           on_resolve = (data) =>
-            if data?
-              @trigger "#{event}:done", data
+            debug "#{event}:done", data
+            @trigger "#{event}:done", data
             data
           on_reject = (error) =>
+            debug "#{event}:error"
             @trigger "#{event}:error", error
             Promise.reject error
           fun
@@ -483,11 +486,13 @@ Wrap with events
 
       _wrap_one: (event,fun) ->
         handler = (args...) =>
+          debug "event"
           on_resolve = (data) =>
-            if data?
-              @trigger "#{event}:done", data
+            debug "#{event}:done", data
+            @trigger "#{event}:done", data
             data
           on_reject = (error) =>
+            debug "#{event}:error"
             @trigger "#{event}:error", error
             Promise.reject error
           fun
@@ -499,9 +504,9 @@ Wrap with events
 
       install_handlers: ->
         events = [
-          'load_device_for_account'
+          'load_devices_for_account'
           'load_endpoints_for_account'
-          'load_global_numbers_for_accunt'
+          'load_global_numbers_for_account'
           'load_global_numbers_for_local_number'
           'load_local_numbers_for_account'
           'load_number_domains_for_account'
@@ -540,7 +545,7 @@ Wrap with events
         for event in events
           do (event) =>
             event = event.replace /-/g, '_'
-            @_wrap_on event, this::[event]
+            @_wrap_on event, this[event]
 
         events = [
           'push_couchapp'
@@ -549,7 +554,7 @@ Wrap with events
         for event in events
           do (event) =>
             event = event.replace /-/g, '_'
-            @_wrap_one event, this::[event]
+            @_wrap_one event, this[event]
 
     app = 'wandering-country'
 
@@ -559,94 +564,77 @@ Wrap with events
       WanderingCountry
     }
 
-    couchapp = ({normalize_account}) ->
-      _id: "_design/#{app}"
-      language: 'cofffeescript'
-      views:
-        lib: {normalize_account}
+    {p_fun} = require 'coffeescript-helpers'
 
+    couchapp = ({normalize_account}) ->
+      extra = "var normalize_account = #{normalize_account};"
+
+      _id: "_design/#{app}"
+      language: 'javascript'
+      views:
         numbers_by_domain:
-          map: '''
-            (doc) ->
-              return unless doc.type? and doc.type is 'number'
-              return unless m = doc._id.match /^number:[^@]+@(.+)$/
-              emit m[1]
-          '''
+          map: p_fun (doc) ->
+            return unless doc.type? and doc.type is 'number'
+            return unless m = doc._id.match /^number:[^@]+@(.+)$/
+            emit m[1]
           reduce: '_count'
 
         endpoints_by_domain:
-          map: '''
-            (doc) ->
-              return unless doc.type? and doc.type is 'endpoint'
-              return unless m = doc._id.match /^endpoint:[^@]+@(.+)$/
-              emit m[1]
-          '''
+          map: p_fun (doc) ->
+            return unless doc.type? and doc.type is 'endpoint'
+            return unless m = doc._id.match /^endpoint:[^@]+@(.+)$/
+            emit m[1]
 
         devices:
-          map: '''
-            normalize_account = require('views/lib/normalize_account')
-            (doc) ->
-              return unless doc.type? and doc.type is 'device'
-              return if doc.disabled
+          map: p_fun extra, (doc) ->
+            return unless doc.type? and doc.type is 'device'
+            return if doc.disabled
 
-              if doc.account?
-                account = normalize_account doc.account
-                emit ['account',account]
-          '''
+            if doc.account?
+              account = normalize_account doc.account
+              emit ['account',account]
 
         number_domains:
-          map: '''
-            normalize_account = require('views/lib/normalize_account')
-            (doc) ->
-              return unless doc.type? and doc.type is 'number_domain'
-              return if doc.disabled
+          map: p_fun extra, (doc) ->
+            return unless doc.type? and doc.type is 'number_domain'
+            return if doc.disabled
 
-              if doc.account?
-                account = normalize_account doc.account
-                emit ['account',account]
-          '''
+            if doc.account?
+              account = normalize_account doc.account
+              emit ['account',account]
 
         endpoints:
-          map: '''
-            normalize_account = require('views/lib/normalize_account')
-            (doc) ->
-              return unless doc.type? and doc.type is 'endpoint'
-              return if doc.disabled
+          map: p_fun extra, (doc) ->
+            return unless doc.type? and doc.type is 'endpoint'
+            return if doc.disabled
 
-              if doc.account?
-                account = normalize_account doc.account
-                emit ['account',account]
-          '''
+            if doc.account?
+              account = normalize_account doc.account
+              emit ['account',account]
 
         local_numbers:
-          map: '''
-            normalize_account = require('views/lib/normalize_account')
-            (doc) ->
-              return unless doc.type? and doc.type is 'number'
-              return unless m = doc._id.match /^number:[^@]+@(.+)$/
-              return if doc.disabled
+          map: p_fun extra, (doc) ->
+            return unless doc.type? and doc.type is 'number'
+            return unless m = doc._id.match /^number:[^@]+@(.+)$/
+            return if doc.disabled
 
-              if doc.account?
-                account = normalize_account doc.account
-                emit ['account',account]
-          '''
+            if doc.account?
+              account = normalize_account doc.account
+              emit ['account',account]
 
 View for (admin) routing of global numbers.
 The view lists all global numbers for a given account.
 The view lists the global number(s) routing to a given local-number.
 
         global_numbers:
-          map: '''
-            normalize_account = require('views/lib/normalize_account')
-            (doc) ->
-              return unless doc.type? and doc.type is 'number'
-              return if m = doc._id.match /^number:[^@]+@(.+)$/
-              return if doc.disabled
+          map: p_fun extra, (doc) ->
+            return unless doc.type? and doc.type is 'number'
+            return if m = doc._id.match /^number:[^@]+@(.+)$/
+            return if doc.disabled
 
-              if doc.account?
-                account = normalize_account doc.account
-                emit ['account',account]
+            if doc.account?
+              account = normalize_account doc.account
+              emit ['account',account]
 
-              if doc.local_number?
-                emit ['local_number',doc.local_number]
-          '''
+            if doc.local_number?
+              emit ['local_number',doc.local_number]
