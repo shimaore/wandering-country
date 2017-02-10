@@ -112,9 +112,11 @@ Coffee-script representation of a module which exports a function that rewrites 
 
       load_devices_for_account: (account) -> @devices_for ['account',account]
       load_endpoints_for_account: (account) -> @endpoints_for ['account',account]
+      load_endpoints_for_domain: (domain) -> @endpoints_for ['domain',domain]
       load_global_numbers_for_account: (account) -> @global_numbers_for ['account',account]
       load_global_numbers_for_local_number: (local_number) -> @global_numbers_for ['local_number',local_number]
       load_local_numbers_for_account: (account) -> @local_numbers_for ['account',account]
+      load_local_numbers_for_number_domain: (number_domain) -> @local_numbers_for ['number_domain',number_domain]
       load_number_domains_for_account: (account) -> @number_domains_for ['account',account]
 
 ### Create
@@ -502,9 +504,11 @@ Wrap with events
         events = [
           'load_devices_for_account'
           'load_endpoints_for_account'
+          'load_endpoints_for_domain'
           'load_global_numbers_for_account'
           'load_global_numbers_for_local_number'
           'load_local_numbers_for_account'
+          'load_local_numbers_for_number_domain'
           'load_number_domains_for_account'
           'create_domain'
           'create_device'
@@ -607,6 +611,10 @@ Wrap with events
               account = normalize_account doc.account
               emit ['account',account]
 
+            m = doc._id.match /^endpoint:[^@]+@(.+)$/
+            if m?[1]?
+              emit ['domain',m[1]]
+
         local_numbers:
           map: p_fun extra, (doc) ->
             return unless doc.type? and doc.type is 'number'
@@ -616,6 +624,9 @@ Wrap with events
             if doc.account?
               account = normalize_account doc.account
               emit ['account',account]
+
+            if m[1]?
+              emit ['number_domain',m[1]]
 
 View for (admin) routing of global numbers.
 The view lists all global numbers for a given account.
