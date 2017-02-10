@@ -302,7 +302,7 @@ Send the result
 
 ### DNS Records
 
-      create_dns_for_domain: seem (domain) =>
+      create_dns_for_domain: seem (domain) ->
         debug 'create_dns_for_domain', domain
         cfg = yield @dns_for_domain domain
         debug 'create_dns_for_domain, cfg', cfg
