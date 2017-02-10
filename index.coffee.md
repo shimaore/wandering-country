@@ -523,7 +523,7 @@ Wrap with events
           'update_audio_blob'
           'update_prov_audio_blob'
           'dns-for-domain'
-          'create_dns'
+          'create_dns_for_domain'
           'load_list'
           'update_list'
           'remove_list'
