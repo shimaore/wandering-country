@@ -467,9 +467,13 @@ Wrap with events
             debug "#{event}:error"
             @trigger "#{event}:error", error
             Promise.reject error
-          fun
-            .apply this, args
-            .then on_resolve, on_reject
+          try
+            fun
+              .apply this, args
+              .then on_resolve, on_reject
+          catch error
+            @trigger "#{event}:error", error
+            Promise.reject error
         @on event, handler
         handler
 
@@ -484,9 +488,13 @@ Wrap with events
             debug "#{event}:error"
             @trigger "#{event}:error", error
             Promise.reject error
-          fun
-            .apply this, args
-            .then on_resolve, on_reject
+          try
+            fun
+              .apply this, args
+              .then on_resolve, on_reject
+          catch error
+            @trigger "#{event}:error", error
+            Promise.reject error
         @one event, handler
         handler
 
