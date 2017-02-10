@@ -302,21 +302,10 @@ Send the result
 
 ### DNS Records
 
-`/dns-for-domain` must be defined in a local `spicy-action` service.
-
-      dns_for_domain: seem (domain) ->
-        debug 'dns-for-domain', domain
-        {body} = yield @request
-          .get '/dns-for-domain'
-          .send {domain}
-          .catch ->
-            debug 'dns-for-domain:error', domain
-            body: false
-        cfg = body
-
       create_dns_for_domain: seem (domain) =>
         debug 'create_dns_for_domain', domain
         cfg = yield @dns_for_domain domain
+        debug 'create_dns_for_domain, cfg', cfg
 
         unless cfg.soa? and cfg.admin? and cfg.records?
           return Promise.reject new Error 'invalid configuration'
@@ -501,7 +490,6 @@ Wrap with events
         @one event, handler
         handler
 
-
       install_handlers: ->
         events = [
           'load_devices_for_account'
@@ -522,7 +510,6 @@ Wrap with events
           'load_saved_messages'
           'update_audio_blob'
           'update_prov_audio_blob'
-          'dns-for-domain'
           'create_dns_for_domain'
           'load_list'
           'update_list'
