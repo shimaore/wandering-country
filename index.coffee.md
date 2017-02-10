@@ -434,11 +434,11 @@ Wrap with events
 
         @monitor.provisioning = @start_monitoring db
 
-        @ev.one 'shutdown', ->
-          monitor.provisioning.cancel()
-          monitor.provisioning = null
-          db.close()
-          db = null
+        @ev.one 'shutdown', =>
+          @monitor.provisioning.cancel()
+          @monitor.provisioning = null
+          @db.close()
+          @db = null
 
           if @monitor.voicemail?
             @monitor.voicemail.cancel()
