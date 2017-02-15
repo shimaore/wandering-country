@@ -29,6 +29,9 @@ Use local (in-browser) PouchDB for tests.
         ev.one 'user-data', (data) ->
           debug 'trigger database-name'
           ev.trigger 'database-name', 'test'
+        ev.one 'push_couchapp:done', ->
+          ev.trigger 'user-data', admin: true
+        ev.trigger 'push_couchapp'
 
 Normal usage / production
 -------------------------
