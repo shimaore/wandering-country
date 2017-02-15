@@ -425,7 +425,7 @@ Wrap with events
           @monitor.voicemail_db = null
 
         @monitor.voicemail_db = @user_db name
-        @monitor.voicemail = @start_monitoring monitor.voicemail_db
+        @monitor.voicemail = @start_monitoring @monitor.voicemail_db
 
         return
 
