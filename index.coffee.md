@@ -421,11 +421,10 @@ Wrap with events
         changes
 
       monitor_voicemail: (name) ->
-        if @monitor.voicemail?
-          @monitor.voicemail.cancel()
-          @monitor.voicemail = null
-          @monitor.voicemail_db.close()
-          @monitor.voicemail_db = null
+        @monitor.voicemail?.cancel()
+        @monitor.voicemail = null
+        @monitor.voicemail_db?.close()
+        @monitor.voicemail_db = null
 
         @monitor.voicemail_db = @user_db name
         @monitor.voicemail = @start_monitoring @monitor.voicemail_db
@@ -445,11 +444,10 @@ Wrap with events
           @db.close()
           @db = null
 
-          if @monitor.voicemail?
-            @monitor.voicemail.cancel()
-            @monitor.voicemail = null
-            @monitor.voicemail_db.close()
-            @monitor.voicemail_db = null
+          @monitor.voicemail?.cancel()
+          @monitor.voicemail = null
+          @monitor.voicemail_db?.close()
+          @monitor.voicemail_db = null
 
 ### Events
 
