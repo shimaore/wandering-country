@@ -478,8 +478,7 @@ Wrap with events
               .apply this, args
               .then on_resolve, on_reject
           catch error
-            @trigger "#{event}:error", error
-            Promise.reject error
+            on_reject error
 
       _wrap_on: (event,fun) ->
         handler = @_handler event, fun
