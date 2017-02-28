@@ -15,7 +15,9 @@
     "coffee-coverage": "^1.0.1",
     "coffee-script": "^1.12.3",
     "mocha": "^3.2.0",
-    "pouchdb": "^6.1.1"
+    "pouchdb": "^6.1.1",
+    "pouchdb-adapter-memory": "^6.1.2",
+    "riot-observable": "^3.0.0"
   },
   "dependencies": {
     "coffeescript-helpers": "^2.2.0",

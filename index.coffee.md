@@ -2,6 +2,9 @@
 
     seem = require 'seem'
     sleep = require './sleep'
+    assert = (test,msg) ->
+      if not test
+        throw new Error msg
 
 Generic load/create/update
 --------------------------
@@ -459,7 +462,8 @@ Wrap with events
       one: (event,handler) ->
         @ev.one event, handler
 
-      _wrap_on: (event,fun) ->
+      _handler: (event,fun) ->
+        assert (event and fun), "Invalid #{event}"
         handler = (args...) =>
           on_resolve = (data) =>
             debug "#{event}:done", data
@@ -476,27 +480,14 @@ Wrap with events
           catch error
             @trigger "#{event}:error", error
             Promise.reject error
+
+      _wrap_on: (event,fun) ->
+        handler = @_handler event, fun
         @on event, handler
         handler
 
       _wrap_one: (event,fun) ->
-        handler = (args...) =>
-          debug "event"
-          on_resolve = (data) =>
-            debug "#{event}:done", data
-            @trigger "#{event}:done", data
-            data
-          on_reject = (error) =>
-            debug "#{event}:error"
-            @trigger "#{event}:error", error
-            Promise.reject error
-          try
-            fun
-              .apply this, args
-              .then on_resolve, on_reject
-          catch error
-            @trigger "#{event}:error", error
-            Promise.reject error
+        handler = @_handler event, fun
         @one event, handler
         handler
 
