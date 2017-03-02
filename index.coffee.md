@@ -211,7 +211,7 @@ Load the endpoints in the domain (including the disabled ones)
 Trigger errors
 
         unless number_domain? or domain? or numbers.length > 0 or endpoints.length > 0
-          return new Promise.reject "No data for domain #{name}"
+          return new Promise.reject new Error "No data for domain #{name}"
 
 Send the result
 
