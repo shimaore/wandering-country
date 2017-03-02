@@ -217,11 +217,13 @@ Send the result
 
         number_domain ?=
           _id: "number_domain:#{name}"
+          _fake: true
           type: 'number_domain'
           number_domain: name
 
         domain ?=
           _id: "domain:#{name}"
+          _fake: true
           type: 'domain'
           domain: name
 
