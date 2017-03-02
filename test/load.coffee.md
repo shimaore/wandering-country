@@ -1,7 +1,5 @@
     describe 'Modules', ->
       it 'index should load', -> require '../index'
-      it 'sleep should load', -> require '../sleep'
-      it 'update-version should load', -> require '../update-version'
       it 'design should load', -> require '../design'
       it 'client-db should load', -> require '../client-db'
       it 'server-db should load', -> require '../server-db'

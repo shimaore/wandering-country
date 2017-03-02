@@ -1,8 +1,8 @@
     debug = (require 'debug') 'wandering-country'
 
     seem = require 'seem'
-    sleep = require './sleep'
-    update_version = require './update-version'
+    sleep = require 'marked-summer/sleep'
+    update_version = require 'marked-summer/update-version'
 
     {app,couchapp} = require './design'
 
