@@ -4,7 +4,7 @@
     sleep = require './sleep'
     update_version = require './update-version'
 
-    {app,ddoc} = require './design'
+    {app,couchapp} = require './design'
 
     assert = (test,msg) ->
       if not test
@@ -246,8 +246,8 @@ Send the result
 
       push_couchapp: ->
         doc = couchapp {@normalize_account}
-        debug 'couchapp', ddoc
-        update_version @db, ddoc
+        debug 'couchapp', doc
+        update_version @db, doc
 
 ### Build generic load/update/remove for various types
 

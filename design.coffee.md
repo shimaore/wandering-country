@@ -3,7 +3,7 @@
 
     {p_fun} = require 'coffeescript-helpers'
 
-    ddoc = ({normalize_account}) ->
+    couchapp = ({normalize_account}) ->
       extra = "var normalize_account = #{normalize_account};"
 
       _id: "_design/#{app}"
@@ -84,4 +84,4 @@ The view lists the global number(s) routing to a given local-number.
             if doc.local_number?
               emit ['local_number',doc.local_number]
 
-    module.exports = {app,app_version,ddoc}
+    module.exports = {app,couchapp}
