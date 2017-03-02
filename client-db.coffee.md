@@ -49,6 +49,9 @@ Module `spicy-action-user` defines `get-user-data` and its response, `user-data`
         if user.admin
           db_name = 'provisioning'
         else
+
+Event `user-provisioning` is defined in `charming-circle`. It will send `database-ready` when ready.
+
           debug 'Waiting for database-ready…'
           db_name = yield new Promise (resolve) ->
             ev.one 'database-ready', (db) ->
