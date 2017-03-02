@@ -215,18 +215,6 @@ Trigger errors
 
 Send the result
 
-        number_domain ?=
-          _id: "number_domain:#{name}"
-          _fake: true
-          type: 'number_domain'
-          number_domain: name
-
-        domain ?=
-          _id: "domain:#{name}"
-          _fake: true
-          type: 'domain'
-          domain: name
-
         result = {domain,number_domain,numbers,endpoints}
         debug 'load_domain', result
         result
