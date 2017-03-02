@@ -172,10 +172,7 @@ Load the number-domain
 
         number_domain = yield @db
           .get "number_domain:#{name}"
-
-        unless number_domain?.dialplan is 'centrex'
-          debug 'number_domain is not centrex', name, number_domain
-          return Promise.reject new Error "number_domain #{name} is not centrex"
+          .catch -> null
 
 Load the associated DNS domain
 
@@ -183,6 +180,7 @@ Load the associated DNS domain
 
         domain = yield @db
           .get "domain:#{name}"
+          .catch -> null
 
 Load the numbers in the domain (including the disabled ones)
 
@@ -193,6 +191,7 @@ Load the numbers in the domain (including the disabled ones)
             reduce: false
             include_docs: true
             key: name
+          .catch -> rows:[]
 
         numbers = rows.map (row) -> row.doc
 
@@ -205,10 +204,26 @@ Load the endpoints in the domain (including the disabled ones)
             reduce: false
             include_docs: true
             key: name
+          .catch -> rows:[]
 
         endpoints = rows.map (row) -> row.doc
 
+Trigger errors
+
+        unless number_domain? or domain? or numbers.length > 0 or endpoints.length > 0
+          return new Promise.reject "No data for domain #{name}"
+
 Send the result
+
+        number_domain ?=
+          _id: "number_domain:#{name}"
+          type: 'number_domain'
+          number_domain: name
+
+        domain ?=
+          _id: "domain:#{name}"
+          type: 'domain'
+          domain: name
 
         result = {domain,number_domain,numbers,endpoints}
         debug 'load_domain', result
