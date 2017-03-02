@@ -168,58 +168,43 @@ Coffee-script representation of a module which exports a function that rewrites 
 
 Load the number-domain
 
-        debug 'load_domain', name
+        debug 'load_domain: number-domain', name
+
         number_domain = yield @db
           .get "number_domain:#{name}"
-          .catch -> null
 
-        unless number_domain?
-          debug 'no number_domain', name
-          return
-
-        unless number_domain.dialplan is 'centrex'
+        unless number_domain?.dialplan is 'centrex'
           debug 'number_domain is not centrex', name, number_domain
-          return
+          return Promise.reject new Error "number_domain #{name} is not centrex"
 
 Load the associated DNS domain
 
+        debug 'load_domain: domain', name
+
         domain = yield @db
           .get "domain:#{name}"
-          .catch -> null
-
-        unless domain?
-          debug 'no domain', name
-          return
 
 Load the numbers in the domain (including the disabled ones)
+
+        debug 'load_domain: numbers by domain', name
 
         {rows} = yield @db
           .query "#{app}/numbers_by_domain",
             reduce: false
             include_docs: true
             key: name
-          .catch ->
-            rows:null
-
-        unless rows?
-          debug 'no numbers_by_domain', name
-          return
 
         numbers = rows.map (row) -> row.doc
 
 Load the endpoints in the domain (including the disabled ones)
+
+        debug 'load_domain: endpoints by domain', name
 
         {rows} = yield @db
           .query "#{app}/endpoints_by_domain",
             reduce: false
             include_docs: true
             key: name
-          .catch ->
-            rows:null
-
-        unless rows?
-          debug 'no endpoints_by_domain', name
-          return
 
         endpoints = rows.map (row) -> row.doc
 
