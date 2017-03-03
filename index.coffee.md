@@ -413,14 +413,14 @@ Wrap with events
 
         changes
 
-      unmonitor_voicemail: ->
+      __unmonitor_voicemail: ->
         @monitor.voicemail?.cancel()
         @monitor.voicemail = null
         @monitor.voicemail_db?.close()
         @monitor.voicemail_db = null
 
       monitor_voicemail: (name) ->
-        @unmonitor_voicemail()
+        @__unmonitor_voicemail()
 
         @monitor.voicemail_db = @user_db name
         @monitor.voicemail = @start_monitoring @monitor.voicemail_db
@@ -440,7 +440,7 @@ Wrap with events
           @db.close()
           @db = null
 
-          @unmonitor_voicemail()
+          @__unmonitor_voicemail()
 
 ### Events
 
