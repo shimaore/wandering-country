@@ -425,7 +425,7 @@ Wrap with events
         @monitor.voicemail_db = @user_db name
         @monitor.voicemail = @start_monitoring @monitor.voicemail_db
 
-        return
+        Promise.resolve()
 
       constructor: (db,user_db,@ev) ->
         super db, user_db
