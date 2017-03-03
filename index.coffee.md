@@ -536,6 +536,8 @@ Wrap with events
             event = event.replace /-/g, '_'
             @_wrap_one event, this[event]
 
+        return
+
     module.exports = {
       WanderingCountryWithUserDatabase
       WanderingCountryWithCCNQ
