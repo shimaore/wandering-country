@@ -232,6 +232,7 @@ Send the result
           .allDocs
             startkey: 'number_domain:'
             endkey: 'number_domain:\uffff'
+            include_docs: true
           .catch (error) ->
             debug "load_number_domains: #{error.stack ? error}"
             Promise.reject error
@@ -240,7 +241,7 @@ Send the result
 
         rows.map (row) ->
           m = row.id.match /^number_domain:(.+)$/
-          name: m[1], label: m[1]
+          name: m[1], label: m[1], dialplan: row.doc.dialplan
 
 ### Install the Couch App on the server
 
