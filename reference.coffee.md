@@ -98,13 +98,4 @@ For a given endpoint and a date-range, returns dates, and for each date:
 
         post result
 
-    PouchDB = require 'shimaore-pouchdb'
-
-    location = (name) ->
-      [window.location.protocol,'//',window.location.host,'/',name].join ''
-
-    browser = (month) ->
-      name = ['reference',month].join '-'
-      new PouchDB location name
-
-    module.exports = {WanderingCountryReference,browser}
+    module.exports = {WanderingCountryReference}

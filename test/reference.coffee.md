@@ -1,6 +1,6 @@
     seem = require 'seem'
     {p_fun} = require 'coffeescript-helpers'
-    PouchDB = (require 'shimaore-pouchdb')
+    PouchDB = (require 'pouchdb')
       .plugin require 'pouchdb-adapter-memory'
       .defaults adapter:'memory'
 

@@ -17,7 +17,7 @@
     "coffeescript-helpers": "^2.2.0",
     "grumpy-actor": "^1.0.0",
     "mocha": "^3.2.0",
-    "pouchdb": "^6.1.1",
+    "pouchdb": "^6.2.0",
     "pouchdb-adapter-memory": "^6.1.2",
     "riot-observable": "^3.0.0",
     "windy-moon": "^4.0.4"
