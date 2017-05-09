@@ -27,11 +27,7 @@
     "debug": "^2.6.1",
     "marked-summer": "^1.0.3",
     "moment": "^2.18.1",
-    "seem": "^2.0.0",
-    "shimaore-pouchdb": "^6.1.1"
-  },
-  "peerDependencies": {
-    "pouchdb": "^6.1.1"
+    "seem": "^2.0.0"
   },
   "directories": {
     "test": "test"
