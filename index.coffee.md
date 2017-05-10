@@ -457,6 +457,7 @@ Wrap with events
       _handler: (event,fun) ->
         assert (event and fun), "Invalid #{event}"
         handler = (args...) =>
+          debug "#{event}", args
           on_resolve = (data) =>
             debug "#{event}:done", data
             @trigger "#{event}:done", data
@@ -471,6 +472,7 @@ Wrap with events
               .then on_resolve, on_reject
           catch error
             on_reject error
+          return
 
       _wrap_on: (event,fun) ->
         handler = @_handler event, fun
