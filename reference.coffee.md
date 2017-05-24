@@ -56,7 +56,10 @@ For a given endpoint and a date-range, returns dates, and for each date:
       endpoint: (endpoint, start_date, end_date) ->
         @_query 'endpoint', endpoint, start_date, end_date
 
-      _query: seem (type,type_value,start_date,end_date) ->
+      endpoint_docs: (endpoint, start_date, end_date) ->
+        @_query 'endpoint', endpoint, start_date, end_date, true
+
+      _query: seem (type,type_value,start_date,end_date,include_docs = false) ->
 
         start_key = moment start_date, 'YYYY-MM-DD'
           .subtract 1, 'days'
@@ -84,14 +87,20 @@ For a given endpoint and a date-range, returns dates, and for each date:
                 type_value
                 end_key.format 'YYYY-MM-DD'
               ]
-              group: true
+              group: not include_docs
+              reduce: not include_docs
+              include_docs: include_docs
             yield db.close()
             db = null
 
             for row in rows
-              do ({key:[_0,_1,date,tag],value} = row) ->
-                result[date] ?= {}
-                result[date][tag] = value
+              do ({key:[_0,_1,date,tag],value,doc} = row) ->
+                if include_docs
+                  result[date] ?= []
+                  result[date].push doc
+                else
+                  result[date] ?= {}
+                  result[date][tag] = value
 
           start_month.add 1, 'months'
           null
