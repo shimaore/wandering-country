@@ -1,6 +1,6 @@
 {
   "name": "wandering-country",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "description": "Generic query functions for CCNQ4",
   "main": "index.js",
   "scripts": {
