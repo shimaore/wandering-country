@@ -4,7 +4,7 @@
   "description": "Generic query functions for CCNQ4",
   "main": "index.js",
   "scripts": {
-    "prepublish": "coffee -c -M *.coffee.md",
+    "prepublish": "coffee -c *.coffee.md",
     "pretest": "npm install && npm run prepublish",
     "test": "mocha test"
   },
@@ -19,8 +19,7 @@
     "mocha": "^3.5.0",
     "pouchdb-core": "^6.3.4",
     "pouchdb-adapter-memory": "^6.3.4",
-    "riot-observable": "^3.0.0",
-    "windy-moon": "^4.0.4"
+    "riot-observable": "^3.0.0"
   },
   "dependencies": {
     "coffeescript-helpers": "^2.2.0",
