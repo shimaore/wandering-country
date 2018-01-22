@@ -1,5 +1,5 @@
     app = 'wandering-country'
-    app_version = '1.0'
+    app_version = '1.1'
 
     {p_fun} = require 'coffeescript-helpers'
 
