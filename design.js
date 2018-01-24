@@ -100,7 +100,7 @@
             e = doc._id.match(/^endpoint:([^@]+)@(.+)$/);
             if (e != null) {
               ref = [e[1], e[2]], name = ref[0], domain = ref[1];
-              emit(['domain', domain, name], doc.endpoint);
+              emit(['domain', domain], doc.endpoint);
             }
             if (doc.number_domain != null) {
               emit(['number_domain', doc.number_domain], doc.endpoint);
