@@ -77,7 +77,7 @@ Not all endpoints have domains; some only have an IP address.
             e = doc._id.match /^endpoint:([^@]+)@(.+)$/
             if e?
               [name,domain] = [e[1],e[2]]
-              emit ['domain',domain,name], doc.endpoint
+              emit ['domain',domain], doc.endpoint
 
             if doc.number_domain?
               emit ['number_domain',doc.number_domain], doc.endpoint
