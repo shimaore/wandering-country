@@ -154,7 +154,7 @@
             }
             if ((ref5 = doc.skills) != null) {
               ref5.forEach(function(skill) {
-                return emit(['skill', domain, skill], doc.skill);
+                return emit(['skill', domain, skill], doc.number);
               });
             }
           })
