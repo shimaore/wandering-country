@@ -119,7 +119,7 @@ Not all endpoints have domains; some only have an IP address.
               emit ['queue',domain,queue], doc.number
 
             doc.skills?.forEach (skill) ->
-              emit ['skill',domain,skill], doc.skill
+              emit ['skill',domain,skill], doc.number
 
             return
 
