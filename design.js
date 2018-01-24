@@ -136,7 +136,7 @@
               emit(['user_database', doc.user_database], doc.number);
             }
             ref1 = [m[1], m[2]], name = ref1[0], domain = ref1[1];
-            emit(['number_domain', domain, name], doc.number);
+            emit(['number_domain', domain], doc.number);
             if ((ref2 = doc.groups) != null) {
               ref2.forEach(function(group) {
                 return emit(['group', domain, group], doc.number);
