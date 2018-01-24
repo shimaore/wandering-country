@@ -1,6 +1,11 @@
     app = 'wandering-country'
     app_version = '1.2'
 
+Ensure backward-compatibility!
+
+- Do not change the content or the length of existing keys.
+- Avoid changing the set returned for a given query.
+
     {p_fun} = require 'coffeescript-helpers'
 
     couchapp = ({normalize_account}) ->
@@ -107,7 +112,7 @@ Not all endpoints have domains; some only have an IP address.
               emit ['user_database',doc.user_database], doc.number
 
             [name,domain] = [m[1],m[2]]
-            emit ['number_domain',domain,name], doc.number
+            emit ['number_domain',domain], doc.number
 
             doc.groups?.forEach (group) ->
               emit ['group',domain,group], doc.number
