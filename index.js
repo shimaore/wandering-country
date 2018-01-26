@@ -14,7 +14,7 @@
 
   update_version = require('marked-summer/update-version');
 
-  ref = require('./design'), app = ref.app, couchapp = ref.couchapp;
+  ref = require('wandering-country-view'), app = ref.app, couchapp = ref.couchapp;
 
   assert = function(test, msg) {
     if (!test) {
@@ -115,65 +115,81 @@
 
     WanderingCountryWithCCNQ.prototype.normalize_account = 'function(account) { return account }';
 
-    generic_load = function(name) {
+    generic_load = function(type) {
       return seem(function*(key) {
         var docs, rows;
-        debug("generic_load " + name, key);
-        rows = (yield this.db.query(app + "/" + name, {
+        debug("generic_load " + type, key);
+        rows = (yield this.db.query(app + "/all", {
           reduce: false,
           include_docs: true,
-          key: key
+          key: [true, key, type]
         })["catch"](function(error) {
-          debug("generic_load " + name + " Failed: " + error + " " + error.stack);
+          debug("generic_load " + type + " Failed: " + error + " " + error.stack);
           return Promise.reject(error);
         })).rows;
-        debug("generic_load " + name + " OK", key, rows);
+        debug("generic_load " + type + " OK", key, rows);
         return docs = rows.map(function(row) {
           return row.doc;
         });
       });
     };
 
-    WanderingCountryWithCCNQ.prototype.devices_for = generic_load('devices');
+    WanderingCountryWithCCNQ.prototype.devices_for = generic_load('device');
 
-    WanderingCountryWithCCNQ.prototype.endpoints_for = generic_load('endpoints');
+    WanderingCountryWithCCNQ.prototype.endpoints_for = generic_load('endpoint');
 
-    WanderingCountryWithCCNQ.prototype.global_numbers_for = generic_load('global_numbers');
+    WanderingCountryWithCCNQ.prototype.global_numbers_for = generic_load('global-number');
 
-    WanderingCountryWithCCNQ.prototype.local_numbers_for = generic_load('local_numbers');
+    WanderingCountryWithCCNQ.prototype.local_numbers_for = generic_load('local-number');
 
-    WanderingCountryWithCCNQ.prototype.number_domains_for = generic_load('number_domains');
+    WanderingCountryWithCCNQ.prototype.number_domains_for = generic_load('number_domain');
 
     WanderingCountryWithCCNQ.prototype.load_devices_for_account = function(account) {
-      return this.devices_for(['account', account]);
+      return this.devices_for({
+        account: account
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_endpoints_for_account = function(account) {
-      return this.endpoints_for(['account', account]);
+      return this.endpoints_for({
+        account: account
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_endpoints_for_domain = function(domain) {
-      return this.endpoints_for(['domain', domain]);
+      return this.endpoints_for({
+        domain: domain
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_global_numbers_for_account = function(account) {
-      return this.global_numbers_for(['account', account]);
+      return this.global_numbers_for({
+        account: account
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_global_numbers_for_local_number = function(local_number) {
-      return this.global_numbers_for(['local_number', local_number]);
+      return this.global_numbers_for({
+        local_number: local_number
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_local_numbers_for_account = function(account) {
-      return this.local_numbers_for(['account', account]);
+      return this.local_numbers_for({
+        account: account
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_local_numbers_for_number_domain = function(number_domain) {
-      return this.local_numbers_for(['number_domain', number_domain]);
+      return this.local_numbers_for({
+        number_domain: number_domain
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.load_number_domains_for_account = function(account) {
-      return this.number_domains_for(['account', account]);
+      return this.number_domains_for({
+        account: account
+      });
     };
 
     WanderingCountryWithCCNQ.prototype.create_domain = function(doc) {
@@ -229,10 +245,14 @@
         return null;
       }));
       debug('load_domain: numbers by domain', name);
-      rows = (yield this.db.query(app + "/numbers_by_domain", {
+      rows = (yield this.db.query(app + "/all", {
         reduce: false,
         include_docs: true,
-        key: name
+        key: [
+          null, {
+            number_domain: name
+          }, 'local-number'
+        ]
       })["catch"](function() {
         return {
           rows: []
@@ -242,10 +262,14 @@
         return row.doc;
       });
       debug('load_domain: endpoints by domain', name);
-      rows = (yield this.db.query(app + "/endpoints_by_domain", {
+      rows = (yield this.db.query(app + "/all", {
         reduce: false,
         include_docs: true,
-        key: name
+        key: [
+          null, {
+            domain: name
+          }, 'endpoint'
+        ]
       })["catch"](function() {
         return {
           rows: []
