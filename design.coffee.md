@@ -1,5 +1,18 @@
     app = 'wandering-country'
-    app_version = '1.2'
+
+This is the version number for the Couch app / design document itself.
+Notice that it doesn't contain a patch-level indication (because we
+can't do resolution), but the major and minor should follow semver
+(minor change = new functionality with no changes to existing
+functionalities, major change = changes to existing functionality).
+
+    app_version = '2.0'
+
+Corrections to an existing version (=patches) are kept hidden, but they are documented here:
+
+```
+This is version 2.0.0.
+```
 
 Ensure backward-compatibility!
 
@@ -11,7 +24,7 @@ Ensure backward-compatibility!
     couchapp = ({normalize_account}) ->
       extra = "var normalize_account = #{normalize_account};"
 
-      _id: "_design/#{app}"
+      _id: "_design/#{app}-#{app_version}"
       version: app_version
       language: 'javascript'
       views:
