@@ -27,7 +27,7 @@
     "marked-summer": "^1.1.0",
     "moment": "^2.20.1",
     "seem": "^2.0.0",
-    "wandering-country-view": "^2.0.2"
+    "wandering-country-view": "^2.0.3"
   },
   "directories": {
     "test": "test"
