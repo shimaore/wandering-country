@@ -4,7 +4,7 @@
     sleep = require 'marked-summer/sleep'
     update_version = require 'marked-summer/update-version'
 
-    {app,couchapp} = require './design'
+    {app,couchapp} = require 'wandering-country-view'
 
     assert = (test,msg) ->
       if not test
@@ -97,34 +97,34 @@ Coffee-script representation of a module which exports a function that rewrites 
 
 ### Load-via-query
 
-      generic_load = (name) ->
+      generic_load = (type) ->
         seem (key) ->
-          debug "generic_load #{name}", key
+          debug "generic_load #{type}", key
           {rows} = yield @db
-            .query "#{app}/#{name}",
+            .query "#{app}/all",
               reduce: false
               include_docs: true
-              key: key
+              key:  [true,key,type]
             .catch (error) ->
-              debug "generic_load #{name} Failed: #{error} #{error.stack}"
+              debug "generic_load #{type} Failed: #{error} #{error.stack}"
               Promise.reject error
-          debug "generic_load #{name} OK", key, rows
+          debug "generic_load #{type} OK", key, rows
           docs = rows.map (row) -> row.doc
 
-      devices_for: generic_load 'devices'
-      endpoints_for: generic_load 'endpoints'
-      global_numbers_for: generic_load 'global_numbers'
-      local_numbers_for: generic_load 'local_numbers'
-      number_domains_for: generic_load 'number_domains'
+      devices_for: generic_load 'device'
+      endpoints_for: generic_load 'endpoint'
+      global_numbers_for: generic_load 'global-number'
+      local_numbers_for: generic_load 'local-number'
+      number_domains_for: generic_load 'number_domain'
 
-      load_devices_for_account: (account) -> @devices_for ['account',account]
-      load_endpoints_for_account: (account) -> @endpoints_for ['account',account]
-      load_endpoints_for_domain: (domain) -> @endpoints_for ['domain',domain]
-      load_global_numbers_for_account: (account) -> @global_numbers_for ['account',account]
-      load_global_numbers_for_local_number: (local_number) -> @global_numbers_for ['local_number',local_number]
-      load_local_numbers_for_account: (account) -> @local_numbers_for ['account',account]
-      load_local_numbers_for_number_domain: (number_domain) -> @local_numbers_for ['number_domain',number_domain]
-      load_number_domains_for_account: (account) -> @number_domains_for ['account',account]
+      load_devices_for_account: (account) -> @devices_for {account}
+      load_endpoints_for_account: (account) -> @endpoints_for {account}
+      load_endpoints_for_domain: (domain) -> @endpoints_for {domain}
+      load_global_numbers_for_account: (account) -> @global_numbers_for {account}
+      load_global_numbers_for_local_number: (local_number) -> @global_numbers_for {local_number}
+      load_local_numbers_for_account: (account) -> @local_numbers_for {account}
+      load_local_numbers_for_number_domain: (number_domain) -> @local_numbers_for {number_domain}
+      load_number_domains_for_account: (account) -> @number_domains_for {account}
 
 ### Create
 
@@ -191,10 +191,10 @@ Load the numbers in the domain (including the disabled ones)
         debug 'load_domain: numbers by domain', name
 
         {rows} = yield @db
-          .query "#{app}/numbers_by_domain",
+          .query "#{app}/all",
             reduce: false
             include_docs: true
-            key: name
+            key: [null,number_domain:name,'local-number']
           .catch -> rows:[]
 
         numbers = rows.map (row) -> row.doc
@@ -204,10 +204,10 @@ Load the endpoints in the domain (including the disabled ones)
         debug 'load_domain: endpoints by domain', name
 
         {rows} = yield @db
-          .query "#{app}/endpoints_by_domain",
+          .query "#{app}/all",
             reduce: false
             include_docs: true
-            key: name
+            key: [null,domain:name,'endpoint']
           .catch -> rows:[]
 
         endpoints = rows.map (row) -> row.doc

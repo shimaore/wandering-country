@@ -1,6 +1,5 @@
     describe 'Modules', ->
       it 'index should load', -> require '../index'
-      it 'design should load', -> require '../design'
       it 'index should install_handlers', ->
         {WanderingCountry} = require '../index'
         observable = require 'riot-observable'
